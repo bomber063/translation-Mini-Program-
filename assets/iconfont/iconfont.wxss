@@ -1,21 +1,22 @@
-@font-face {font-family: "iconfont";
-  src: url('https://at.alicdn.com/t/font_780826_5ljr5es53es.ttf') format('truetype')
+@font-face {
+  font-family: "iconfont";
+  src: url('//at.alicdn.com/t/font_1609616_ja0bvddti2f.eot?t=1578840051077#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('//at.alicdn.com/t/font_1609616_ja0bvddti2f.woff?t=1578840051077') format('woff'),
+  url('//at.alicdn.com/t/font_1609616_ja0bvddti2f.svg?t=1578840051077#iconfont') format('svg'); /* iOS 4.1- */
 }
 
 .iconfont {
-  font-family:"iconfont" !important;
-  font-size:16px;
-  font-style:normal;
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-down:before { content: "\e600"; }
+.icon-close:before {
+  content: "\e60f";
+}
 
-.icon-right:before { content: "\e642"; }
-
-.icon-close:before { content: "\e601"; }
-
-.icon-arrow-right:before { content: "\e6b4"; }
-
-.icon-duihao:before { content: "\e633"; }
+.icon-down:before {
+  content: "\e609";
+}

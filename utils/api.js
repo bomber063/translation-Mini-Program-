@@ -1,9 +1,10 @@
 import md5 from './md5.min.js'
 
-const appid = '20180802000191219'
-const key = '02LMiYALQE2vR4q0kaef'
+const appid = '20200110000374561'
+const key = 'txvBkUR3vgfaTYSaXTim'
 
-function translate(q, { from = 'auto', to = 'auto' } = { from: 'auto', to: 'auto' }) {
+//因为百度翻译的API文档里面说to不可以设置为'auto',所以我把初始赋值取消了
+function translate(q, { from = 'auto', to} = { from: 'auto', to: 'auto' }) {
   return new Promise((resolve, reject) => {
     let salt = Date.now()
     let sign = md5(`${appid}${q}${salt}${key}`)
@@ -17,6 +18,9 @@ function translate(q, { from = 'auto', to = 'auto' } = { from: 'auto', to: 'auto
         salt,
         sign
       },
+      //method为post的时候，需要把header的content-type设置为application/x-www-form-urlencoded,如果是get请求就不需要，默认就是get请求
+      // method:'POST',
+      // header:{'content-type':'application/x-www-form-urlencoded'},
       success(res) {
         if (res.data && res.data.trans_result) {
           resolve(res.data)

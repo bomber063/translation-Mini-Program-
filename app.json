@@ -8,7 +8,7 @@
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#1c1b21",
     "navigationBarTitleText": "饥人谷翻译",
-    "navigationBarTextStyle": "#fff",
+    "navigationBarTextStyle": "white",
     "backgroundColor": "red"
   },
   "tabBar": {
@@ -26,5 +26,6 @@
         "text": "历史"
       }
     ]
-  }
+  },
+  "sitemapLocation": "sitemap50.json"
 }

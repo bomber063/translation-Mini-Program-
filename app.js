@@ -1,7 +1,7 @@
 //app.js
 App({
   onLaunch: function () {
-    // 展示本地存储能力
+    // 展示本地存储能力 先看缓存里面有没有保存语言，没有就用第一个语言，也就是英语
     this.globalData.curLang = wx.getStorageSync('curLang') ||     this.globalData.langList[0]
   },
   globalData: {
