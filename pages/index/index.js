@@ -48,6 +48,7 @@ Page({
     // 如果有数据就执行translate这个函数开始翻译，百度文档说初始to的赋值不可以为'auto'
     translate(this.data.query, {from: 'auto', to: this.data.curLang.lang}).then((res)=>{
       //翻译成功后把翻译的结果保存在result这个key里面，trans_result是百度文档API里面的默认的key
+      //并且把当前的result值设置为翻译后的结果，也就是响应传过来的结果res.trans_result
       this.setData({'result': res.trans_result})
       console.log(res.trans_result)
       //把历史设置为缓存的历史，如果缓存历史没有就设置为空数组

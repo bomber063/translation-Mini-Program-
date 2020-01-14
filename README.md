@@ -15,7 +15,8 @@
 
 ## index.js
 * [wx.setStorageSync('history', history)](https://developers.weixin.qq.com/miniprogram/dev/api/storage/wx.setStorageSync.html)，将数据存储在本地缓存中指定的 key 中。会覆盖掉原来该 key 对应的内容。除非用户主动删除或因存储空间原因被系统清理，否则数据都一直可用。单个 key 允许存储的最大数据长度为 1MB，所有数据存储上限为 10MB。它是wx.setStorage 的同步版本。
-* [setData](https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html#Page.prototype.setData(Object%20data,%20Function%20callback)) **函数用于将数据从逻辑层发送到视图层**（异步），同时改变对应的 this.data 的值（同步）。下面就是把result，也就是翻译的结果设置为res.trans_result，然后显示在视图层。trans_result这个key是[百度通用翻译API文档](https://api.fanyi.baidu.com/doc/21)默认的返回的结果的key。
+* [setData](https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html#Page.prototype.setData(Object%20data,%20Function%20callback)) **函数用于将数据从逻辑层发送到视图层**（异步），同时改变对应的 this.data 的值（同步）。下面就是把result，也就是翻译的结果设置为res.trans_result，然后显示在视图层。trans_result这个key是[百度通用翻译API文档](https://api.fanyi.baidu.com/doc/21)默认的返回的结果的key。并且把当前的result值设置为翻译后的结果，也就是响应传过来的结果res.trans_result
+
 ```
 this.setData({'result': res.trans_result})
 ```
@@ -42,6 +43,11 @@ this.setData({'result': res.trans_result})
 ```
 const appid = '20200110000374561'
 const key = 'txvBkUR3vgfaTYSaXTim'
+```
+* 这里在真机调试的时候
+  会弹出翻译失败，它的原因主要是index.wxml文件里面同时存在[bindconfirm——点击完成时和bindblur——输入框失去焦点](https://developers.weixin.qq.com/miniprogram/dev/component/textarea.html)，那么会在相隔很短的事件间隔内翻译两次(第二次会翻译失败)。因为标准版本的QPS(每秒访问量)=1。用我自己的appid和key不会出现翻译失败的情况，因为我的是高级版本，高级版本的QPS(每秒访问量)=10.具体查看[通用翻译API产品服务介绍](https://api.fanyi.baidu.com/product/111)
+```
+bindconfirm='onConfirm' bindblur='onConfirm'
 ```
 * 这个主要参考文档可以查看[百度通用翻译API文档](https://api.fanyi.baidu.com/doc/21)
 * [Date.now()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/now)方法返回自1970年1月1日 00:00:00 UTC到当前时间的毫秒数。
@@ -75,4 +81,37 @@ const key = 'txvBkUR3vgfaTYSaXTim'
 ```
 ## index.wxml
 * [bindtap](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F)这个是当用户点击该组件的时候会在该页面对应的Page中找到相应的事件处理函数。
-
+* 用到[navigator页面链接](https://developers.weixin.qq.com/miniprogram/dev/component/navigator.html)的两个属性
+    * hover-class属性,默认属性值是`navigator-hover`，指定点击时的样式类，当`hover-class="none"`时，**没有点击态效果**
+    * url属性，当前小程序内的跳转链接。
+* [textarea多行输入框](https://developers.weixin.qq.com/miniprogram/dev/component/textarea.html)。该组件是原生组件，使用时请注意相关限制。用到它的以下属性
+    * placeholder——输入框为空时占位符。
+    * placeholder-style——指定 placeholder 的样式，目前仅支持color,font-size和font-weight
+    * bindinput——当键盘输入时，触发 input 事件，event.detail = {value, cursor, keyCode}，keyCode 为键值，目前工具还不支持返回keyCode参数。bindinput 处理函数的返回值并不会反映到 textarea 上
+    * bindconfirm——点击完成时， 触发 confirm 事件，event.detail = {value: value}
+    * bindblur——输入框失去焦点时触发，event.detail = {value, cursor}
+    * value——输入框的内容
+* 用到[列表渲染](https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/list.html)，[列表渲染 wx:key 的作用](https://segmentfault.com/a/1190000017999005),建议写上，因为不写上动态绑定会有一个警告。如不提供 wx:key，会报一个 warning， 如果明确知道该列表是静态，或者不必关注其顺序，可以选择忽略。
+```
+  <view class="text-result" wx:for="{{result}}" wx:key="index">
+    <text selectable="true">{{item.dst}}</text>
+  </view>
+```
+## index.wxss
+* 这里主要注意用的尺寸单位是[rpx](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxss.html)。
+* 另外icon-close是会和textarea重叠的，所以用绝对定位分开。因为设置了绝对定位，所以内联元素text就变成块级元素。
+```
+    <text class="iconfont icon-close" hidden="{{hideClearIcon}}" bindtap='onTapClose'></text>
+    <view class="textarea-wrap">
+      <textarea placeholder='请输入要翻译的文本' placeholder-style='color: #8995a1'  bindinput='onInput' bindconfirm='onConfirm' bindblur='onConfirm'  value="{{query}}"></textarea>
+    </view>
+    
+.input-area .icon-close {
+  position: absolute;
+  right: 10rpx;
+  top: 20rpx;
+  z-index: 100;
+  font-size: 35rpx;
+  color: #888;
+}
+```

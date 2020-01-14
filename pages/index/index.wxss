@@ -31,10 +31,10 @@
 }
 .input-area .icon-close {
   position: absolute;
-  right: 12rpx;
+  right: 10rpx;
   top: 20rpx;
   z-index: 100;
-  font-size: 40rpx;
+  font-size: 35rpx;
   color: #888;
 }
 
