@@ -11,8 +11,8 @@ Page({
     curLang: {}
   },
   onLoad: function( options) {
-    console.log(1)
-    console.log(options)
+    // console.log(1)
+    // console.log(options)
     if(options.query) {
       this.setData({ query: options.query })
     }
@@ -26,7 +26,7 @@ Page({
     
   },
   onInput: function(e) {
-    console.log(e.detail)
+    // console.log(e.detail)
     //把输入的信息用query作为key保存。
     this.setData({'query': e.detail.value})
     //如果长度大于0，就显示icon
@@ -35,7 +35,7 @@ Page({
     }else{
       this.setData({ 'hideClearIcon': true })
     }
-    console.log('focus')
+    // console.log('focus')
   },
   //点击关闭的叉叉icon的时候清除输入数据并且把关闭的叉叉icon隐藏
   onTapClose: function() {
@@ -50,7 +50,6 @@ Page({
       //翻译成功后把翻译的结果保存在result这个key里面，trans_result是百度文档API里面的默认的key
       //并且把当前的result值设置为翻译后的结果，也就是响应传过来的结果res.trans_result
       this.setData({'result': res.trans_result})
-      console.log(res.trans_result)
       //把历史设置为缓存的历史，如果缓存历史没有就设置为空数组
       let history = wx.getStorageSync('history')||[]
       //在百度翻译的API里面解释默认的query原文是src，译文是dst

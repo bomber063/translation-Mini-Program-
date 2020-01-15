@@ -115,3 +115,70 @@ bindconfirm='onConfirm' bindblur='onConfirm'
   color: #888;
 }
 ```
+## change.json
+* [页面配置](https://developers.weixin.qq.com/miniprogram/dev/framework/config.html#%E9%A1%B5%E9%9D%A2%E9%85%8D%E7%BD%AE)
+
+## change.wxml
+* 这里面用到一个公用属性[data-*](https://developers.weixin.qq.com/miniprogram/dev/framework/view/component.html#%E5%85%AC%E5%85%B1%E5%B1%9E%E6%80%A7),他会存在你绑定的事件，比如这个事件是e，那么对应的信息就会在currentTarget->dataset里面
+```
+  "currentTarget":  {
+    "id": "tapTest",
+    "dataset": {
+      "hi":"WeChat"
+    }
+  },
+```
+* 比如我这里用到了`data-chs="{{language.chs}}" data-lang="{{language.lang}}" data-index="{{index}}`这些自定义的公用属性，并且有一个事件是`bindtap=onTapItem`
+```
+  <view class="item" data-chs="{{language.chs}}" data-lang="{{language.lang}}" data-index="{{index}}" wx:for="{{langList}}" wx:key="index" wx:for-item="language" bindtap='onTapItem'  hover-class="view-hover">
+```
+* 那么这个onTapItem里面的事件就可以在`currentTarget->dataset`里面找到这个公用属性的key和value
+```
+  onTapItem: function(e) {
+    console.log(e)
+  }
+```
+* 这些key和value分别是
+```
+chs: "中文"
+index: 1
+lang: "zh"
+```
+* [列表渲染](https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/list.html),这里列表渲染默认的下标是index，对应下标的的变量名默认为item。当然可以指定这个下标和变量的名字。我这里就指定下标为**i**，变量名字为**language**.当指定的下标**i**与app.js中原本存储的语言列表对应的index一样的时候就显示这个**对号**。
+```
+<!--  列表渲染-->
+  <view class="item" data-chs="{{language.chs}}" data-lang="{{language.lang}}" data-index="{{index}}" wx:for="{{langList}}" wx:key="index" wx:for-item="language" wx:for-index="i" bindtap='onTapItem'  hover-class="view-hover">
+    <view class="item-inner">
+      <text class="txt">{{language.chs}}</text>
+      <text class="iconfont icon-duihao" wx:if="{{i===curLang.index}}"></text>
+    </view>
+  </view>
+```
+* 同时使用下面的公用属性和列表渲染。
+```
+<view class="container lang-list">
+  <view class="title">翻译成</view>
+<!--  下面的data-chs="{{la.chs}}" data-lang="{{la.lang}}" data-i="{{i}}"是一起使用的，是为了提供公用属性，但是公用属性的值，也就是value需要从渲染的变量里面去获取-->
+<!--  下面的wx:for="{{langList}}" wx:key="i" wx:for-item="la" wx:for-index="i"是一起使用的，是为了渲染一个列表-->
+  <view class="item" data-chs="{{la.chs}}" data-lang="{{la.lang}}" data-i="{{i}}" wx:for="{{langList}}" wx:key="i" wx:for-item="la" wx:for-index="i" bindtap='onTapItem'  hover-class="view-hover">
+    <view class="item-inner">
+<!--      {{la.chs}}就可以把前面渲染的列表列出呈现在页面中-->
+      <text class="txt">{{la.chs}}</text>
+<!--      下面左边的i是前面wx:for渲染的设置的下标i,右边的curLang.index是第一次进入，没有点击的时候，缓存中保存的数据，此时的数据的索引用的还全局数据，在全局数据里面的索引用的是index，当点击之后，通过changge.js里面的onTapItem代码可以看到，已经把全局curLang变成了和通过公用属性保存的curLang，并且保存在缓存里面，此时用的索引是i,所以是curLang.i-->
+      <text class="iconfont icon-duihao" wx:if="{{i===curLang.i||i===curLang.index}}"></text>
+    </view>
+  </view>
+</view>
+
+
+<!-- 下面是老师的代码，如果公用属性和最开始全局属性是一样的变量比如索引都是index，那么就不用考点击之后变化的判断，只需要判断一次，因为都是index作为索引-->
+<view class="container lang-list">
+  <view class="title">翻译成</view>
+  <view class="item" data-chs="{{language.chs}}" data-lang="{{language.lang}}" data-index="{{index}}" wx:for="{{langList}}" wx:key="index" wx:for-item="language" bindtap='onTapItem'  hover-class="view-hover">
+    <view class="item-inner">
+      <text class="txt">{{language.chs}}</text>
+      <text class="iconfont icon-duihao" wx:if="{{index===curLang.index}}"></text>
+    </view>
+  </view>
+</view>
+```

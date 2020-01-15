@@ -1,8 +1,6 @@
-@font-face {
-  font-family: "iconfont";
-  src: url('//at.alicdn.com/t/font_1609616_ja0bvddti2f.eot?t=1578840051077#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url('//at.alicdn.com/t/font_1609616_ja0bvddti2f.woff?t=1578840051077') format('woff'),
-  url('//at.alicdn.com/t/font_1609616_ja0bvddti2f.svg?t=1578840051077#iconfont') format('svg'); /* iOS 4.1- */
+@font-face {font-family: "iconfont";
+  src: url('//at.alicdn.com/t/font_1609616_tdxma261xo.eot?t=1579078329189#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('//at.alicdn.com/t/font_1609616_tdxma261xo.woff?t=1579078329189') format('woff')
 }
 
 .iconfont {
@@ -15,6 +13,10 @@
 
 .icon-close:before {
   content: "\e60f";
+}
+
+.icon-duihao:before {
+  content: "\e617";
 }
 
 .icon-down:before {
