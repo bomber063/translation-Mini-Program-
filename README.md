@@ -226,7 +226,7 @@ lang: "zh"
     })
   },
 ```
-* 这个问题我在微信小程序开发交流专区发过一个[问题——wx.reLaunch(Object object)通过url传参数的问题，只能传query吗？](https://developers.weixin.qq.com/community/develop/doc/000aa6b1d3cf28f55fc914da656400)，* **我怀疑这个传参是不是只能传query**
+* 这个问题我在微信小程序开发交流专区发过一个[问题——wx.reLaunch(Object object)通过url传参数的问题，只能传query吗？](https://developers.weixin.qq.com/community/develop/doc/000aa6b1d3cf28f55fc914da656400)， **我怀疑这个传参是不是只能传query**
 * 我把data数据里面的query不定义也可以传过来。
 ```
   data: {
