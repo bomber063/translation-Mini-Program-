@@ -164,7 +164,7 @@ lang: "zh"
     <view class="item-inner">
 <!--      {{la.chs}}就可以把前面渲染的列表列出呈现在页面中-->
       <text class="txt">{{la.chs}}</text>
-<!--      下面左边的i是前面wx:for渲染的设置的下标i,右边的curLang.index是第一次进入，没有点击的时候，缓存中保存的数据，此时的数据的索引用的还全局数据，在全局数据里面的索引用的是index，当点击之后，通过changge.js里面的onTapItem代码可以看到，已经把全局curLang变成了和通过公用属性保存的curLang，并且保存在缓存里面，此时用的索引是i,所以是curLang.i-->
+<!--      下面左边的i是前面wx:for渲染的设置的下标i,右边的curLang.index是第一次进入，没有点击的时候，缓存中保存的数据，此时的数据的索引用的还全局数据，在全局数据里面的索引用的是index，当点击之后，通过change.js里面的onTapItem代码可以看到，已经把全局curLang变成了和通过公用属性保存的curLang，并且保存在缓存里面，此时用的索引是i,所以是curLang.i-->
       <text class="iconfont icon-duihao" wx:if="{{i===curLang.i||i===curLang.index}}"></text>
     </view>
   </view>
@@ -182,3 +182,60 @@ lang: "zh"
   </view>
 </view>
 ```
+## change.js
+* 用到[wx.switchTab](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.switchTab.html),跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面,用到下面的属性
+    * url——需要跳转的 tabBar 页面的路径 (代码包路径)（需在 app.json 的 tabBar 字段定义的页面），路径后不能带参数。
+## history.js
+* 用到[wx.reLaunch](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.reLaunch.html),关闭所有页面，打开到应用内的某个页面,用到的属性
+    * url——需要跳转的应用内页面路径 (代码包路径)，路径后可以带参数。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'
+* 这里的代码如下
+```
+  onTapItem: function(e) {
+    wx.reLaunch({
+      url: `/pages/index/index?query=${e.currentTarget.dataset.query}`
+    })
+  },
+```
+* 当点击的死后会触发reLaunch，然后带上参数`query=${e.currentTarget.dataset.query}`，这个参数就是history.wxml里面的`data-query="{{item.query}}`也就是index.js里面翻译前的信息query
+```
+      history.unshift({ query: this.data.query, result: res.trans_result[0].dst})
+```
+* 然后跳转到index.js页面，这时候因为在此显示index.js页面，那么就会执行onShow
+```
+  onShow: function () {
+    if (this.data.curLang.lang !== app.globalData.curLang.lang) {
+      this.setData({ curLang: app.globalData.curLang })
+      this.onConfirm()
+    }
+  },
+```
+* 因为index.wxml里面的value，也就是输入的信息是`{{query}}`
+```
+      <textarea placeholder='请输入要翻译的文本' placeholder-style='color: #8995a1'  bindinput='onInput' bindconfirm='onConfirm' bindblur='onConfirm'  value="{{query}}"></textarea>
+```
+* 所以就把value=query传过去显示，并且点击确认(onConfirm())，就会直接翻译你的内容了。
+* 用wx.reLaunch传参的时候遇到一个问题，就是我传了两个参数，一个是query，另一个是result，但是只能在接受的页面index里面获取到传过去query的值，但是获取不到result的值。
+```
+  onTapItem: function(e) {
+    console.log(`e.currentTarget.dataset.query`)
+    console.log(e.currentTarget.dataset.query)
+    console.log(`e.currentTarget.dataset.result`)
+    console.log(e.currentTarget.dataset.result)
+    wx.reLaunch({
+      url: `/pages/index/index?query=${e.currentTarget.dataset.query}&result=${e.currentTarget.dataset.result}`
+    })
+  },
+```
+* 这个问题我在微信小程序开发交流专区发过一个[问题——wx.reLaunch(Object object)通过url传参数的问题，只能传query吗？](https://developers.weixin.qq.com/community/develop/doc/000aa6b1d3cf28f55fc914da656400)，* **我怀疑这个传参是不是只能传query**
+* 我把data数据里面的query不定义也可以传过来。
+```
+  data: {
+    query: '',//这个定义删除也可以实现传参
+    hideClearIcon: true,
+    result: [],
+    curLang: {}
+  },
+```
+* 我为什么想要传这个result过去，是因为历史页面跳转到index页面后的翻译显示的结果是默认英文的翻译，如果之前的翻译是选择别的语言翻译(比如之前是韩语)的话就会出现语言不同啦（因为显示的是英语，英语和韩语翻译的结果不同）。**如果这里只能传query，那么就不能判断之前用的是英语翻译还是别的语言的翻译，所以这个问题我暂时还解决不了。**
+## util.js
+* 好像并没有用到它。

@@ -22,8 +22,16 @@ Page({
   },
 
   onTapItem: function(e) {
+    console.log(`e.currentTarget.dataset.query`)
+    console.log(e.currentTarget.dataset.query)
+    console.log(`e.currentTarget.dataset.result`)
+    console.log(e.currentTarget.dataset.result)
     wx.reLaunch({
-      url: `/pages/index/index?query=${e.currentTarget.dataset.query}`
+      // url: `/pages/index/index?query=${e.currentTarget.dataset.query}`
+      url: `/pages/index/index?query=${e.currentTarget.dataset.query}&result=${e.currentTarget.dataset.result}`
+      // url: `/pages/index/index?r=${e.currentTarget.dataset.r}&query=${e.currentTarget.dataset.query}`
+      // url: `/pages/index/index?result=${e.currentTarget.dataset.result}`
+      // url: `/pages/index/index?query=11&&id=13`
     })
   },
 

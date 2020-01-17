@@ -19,11 +19,22 @@ Page({
     
   },
   onShow: function () {
+    console.log(`this.data.query`)
+    console.log(this.data.query)
+    console.log(`this.data.result`)
+    console.log(this.data.result)
     if (this.data.curLang.lang !== app.globalData.curLang.lang) {
       this.setData({ curLang: app.globalData.curLang })
       this.onConfirm()
     }
-    
+    // if(!this.data.curLang.lang){
+    //   this.setData({ curLang: this.result })
+    //   // this.onConfirm()
+    // }
+    // else if(this.data.curLang.lang){
+    //   this.setData({ curLang: app.globalData.curLang })
+    //   this.onConfirm()
+    // }
   },
   onInput: function(e) {
     // console.log(e.detail)
@@ -58,6 +69,7 @@ Page({
       history.length = history.length > 10 ? 10 : history.length
       //把历史信息保存在本地缓存里面，用history这个key保存
       wx.setStorageSync('history', history)
+      console.log(history)
     })
   }
 })

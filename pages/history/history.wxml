@@ -2,8 +2,13 @@
 <scroll-view scroll-y class="container">
   <view class="history-list">
     <view class="title">翻译历史</view>
-    <view class="item" wx:for="{{history}}" wx:key="index" bindtap='onTapItem' data-query="{{item.query}}" data-langId="{{item.langIndex}}">
+<!--    wx:for以history做列表渲染-->
+<!--    公用属性里面data-query保存了渲染了翻译前的信息-->
+<!--    下面我删除了data-langId="{{item.langIndex}},因为它好像没有什么用处-->
+    <view class="item" wx:for="{{history}}" wx:key="index" bindtap='onTapItem' data-query="{{item.query}}" data-result="{{item.result}}">
+      <!--    item.query就是需要翻译的信息-->
       <view class="query">{{item.query}}</view>
+      <!--    item.result就是翻译后的信息-->
       <view class="result">{{item.result}}</view>
     </view>
   </view>
