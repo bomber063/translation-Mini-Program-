@@ -11,12 +11,12 @@ Page({
     curLang: {}
   },
   onLoad: function( options) {
-    // console.log(1)
-    // console.log(options)
     if(options.query) {
       this.setData({ query: options.query })
     }
-    
+    if(options.result){
+      this.setData({ result: [options.result] })
+    }
   },
   onShow: function () {
     console.log(`this.data.query`)
@@ -24,9 +24,20 @@ Page({
     console.log(`this.data.result`)
     console.log(this.data.result)
     if (this.data.curLang.lang !== app.globalData.curLang.lang) {
-      this.setData({ curLang: app.globalData.curLang })
-      this.onConfirm()
+      this.setData({curLang: app.globalData.curLang})
+        if (this.data.result) {
+        }
+        if (!this.data.result) {
+          this.onConfirm()
+        }
     }
+    //下面四行代码是不需要通过result传值过来，而是通过再次翻译的结果显示出来。
+    // if (this.data.curLang.lang !== app.globalData.curLang.lang) {
+    //   this.setData({ curLang: app.globalData.curLang })
+    //   this.onConfirm()
+    // }
+
+
     // if(!this.data.curLang.lang){
     //   this.setData({ curLang: this.result })
     //   // this.onConfirm()
@@ -69,7 +80,7 @@ Page({
       history.length = history.length > 10 ? 10 : history.length
       //把历史信息保存在本地缓存里面，用history这个key保存
       wx.setStorageSync('history', history)
-      console.log(history)
+      // console.log(history)
     })
   }
 })

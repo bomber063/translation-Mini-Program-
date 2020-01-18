@@ -237,5 +237,41 @@ lang: "zh"
   },
 ```
 * 我为什么想要传这个result过去，是因为历史页面跳转到index页面后的翻译显示的结果是默认英文的翻译，如果之前的翻译是选择别的语言翻译(比如之前是韩语)的话就会出现语言不同啦（因为显示的是英语，英语和韩语翻译的结果不同）。**如果这里只能传query，那么就不能判断之前用的是英语翻译还是别的语言的翻译，所以这个问题我暂时还解决不了。**
+### 传值的问题解决了
+* 这里之前通过wx.reLaunch传值到onShow里面，所以获取不到。我把它放到onLoad里面就可以获取到了.
+```
+  onLoad: function( options) {
+    if(options.query) {
+      this.setData({ query: options.query })
+    }
+    if(options.result){
+      this.setData({ result: [options.result] })
+    }
+  },
+  onShow: function () {
+    console.log(`this.data.query`)
+    console.log(this.data.query)
+    console.log(`this.data.result`)
+    console.log(this.data.result)
+    if (this.data.curLang.lang !== app.globalData.curLang.lang) {
+      this.setData({curLang: app.globalData.curLang})
+        if (this.data.result) {
+        }
+        if (!this.data.result) {
+          this.onConfirm()
+        }
+    }
+    //下面四行代码是不需要通过result传值过来，而是通过再次翻译的结果显示出来。
+    // if (this.data.curLang.lang !== app.globalData.curLang.lang) {
+    //   this.setData({ curLang: app.globalData.curLang })
+    //   this.onConfirm()
+    // }
+  },
+```
+* 然后在index.wxml里面增加result就可以显示历史页面点击后的跳转的结果啦
+```
+        <text selectable="true">{{item.dst||result}}</text>
+```
+* 具体解决过程也可以看我发的问题——[问题——wx.reLaunch(Object object)通过url传参数的问题，只能传query吗？](https://developers.weixin.qq.com/community/develop/doc/000aa6b1d3cf28f55fc914da656400)
 ## util.js
 * 好像并没有用到它。

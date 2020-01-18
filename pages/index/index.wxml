@@ -18,7 +18,7 @@
     <view class="text-area">
       <view class="text-title">译文</view>
       <view class="text-result" wx:for="{{result}}" wx:key="index">
-        <text selectable="true">{{item.dst}}</text>
+        <text selectable="true">{{item.dst||result}}</text>
       </view>
     </view>
   </view>
