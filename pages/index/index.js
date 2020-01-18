@@ -19,13 +19,14 @@ Page({
     }
   },
   onShow: function () {
-    console.log(`this.data.query`)
-    console.log(this.data.query)
-    console.log(`this.data.result`)
-    console.log(this.data.result)
+    // console.log(`this.data.query`)
+    // console.log(this.data.query)
+    // console.log(`this.data.result`)
+    // console.log(this.data.result)
     if (this.data.curLang.lang !== app.globalData.curLang.lang) {
       this.setData({curLang: app.globalData.curLang})
         if (this.data.result) {
+            return
         }
         if (!this.data.result) {
           this.onConfirm()
