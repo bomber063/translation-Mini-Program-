@@ -1,10 +1,46 @@
 # translation-Mini-Program-
+## WXS（WeiXin Script）
+* WXS（WeiXin Script）是小程序的一套脚本语言，结合 WXML，可以构建出页面的结构。
+* 它跟MVVM框架比较像，它不想原生的JS那样去操作DOM。而是做了一个数据和视图的绑定。
+* 另外移动端是没有鼠标的click的，大部分都是tap。所以绑定事件用的是[bindtap](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F)等,示例可以看[这里的例子](https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html#Page.prototype.setData(Object%20data,%20Function%20callback))
+## 页面初始数据
+* [data](https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html#data).
+* wxml里面
+```
+    <view>{{text}}</view>
+    <view>{{array[0].msg}}</view>
+```
+* js里面
+```
+Page({
+  data: {
+    text: 'init data',
+    array: [{msg: '1'}, {msg: '2'}]
+  }
+})
+```
+### 修改数据
+* 我们不是修改对应的DOM，而是通过[setData](https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html)来修改。
+### 进入的初始页面
+* 通过[目录结构](https://developers.weixin.qq.com/miniprogram/dev/framework/structure.html)的[app.json](https://developers.weixin.qq.com/miniprogram/dev/framework/config.html),比如下面的页面最先进入的是index目录下面的index页面。**也就是第一行的就是默认展示的页面**.
+```
+{
+  "pages": [
+    "pages/index/index",
+    "pages/logs/index"
+  ],
+}
+```
+### 显示消息提示框
+* [showToast](https://developers.weixin.qq.com/miniprogram/dev/api/ui/interaction/wx.showToast.html)显示消息提示框
 ## app.wxss
 * 用到样式导入
 * 使用@import语句可以导入外联样式表，@import后跟需要导入的外联样式表的相对路径，用;表示语句结束。比如
 ```
 @import "./assets/iconfont/iconfont.wxss";
 ```
+### rpx
+* [rpx](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxss.html)会自动的根据屏幕宽度等比的放大或者缩小。
 ## iconfont.wxss
 * 用到[@font-face](https://developer.mozilla.org/zh-CN/docs/Web/CSS/@font-face)
 * 在同时使用url()和local()功能时，为了用户已经安装的字体副本在需要使用时被使用，如果在用户本地没有找到字体副本就会去使用户下载的副本查找字体。
