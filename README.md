@@ -41,6 +41,49 @@ Page({
 ```
 ### rpx
 * [rpx](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxss.html)会自动的根据屏幕宽度等比的放大或者缩小。
+### 逻辑层细节
+#### 全局配置
+* [全局配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html),**其中注意下面代码的backgroundColor可能会被page覆盖，有时候page往下面拉动的时候才会显示出来这个颜色。**
+```
+{
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "微信接口功能演示",
+    "backgroundColor": "#eeeeee",
+    "backgroundTextStyle": "light"
+  }
+}
+```
+* tabBar的borderStyle属性——tabbar 上边框的颜色， 仅支持 black / white。
+* tabBar的StyleiconPath和selectedIconPath属性——当 position 为 top 时，不显示 icon。
+#### 逻辑层
+* 首先进入小程序的时候最开始是执行`App({})`——[App](https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/app.html),也就是执行App这个方法，然后调用这个函数传递一些参数。
+* [前台/后台状态](https://developers.weixin.qq.com/miniprogram/dev/framework/runtime/operating-mechanism.html)
+  小程序启动后，界面被展示给用户，此时小程序处于**前台**状态。
+  
+  当用户点击右上角胶囊按钮关闭小程序，或者按了设备 Home 键离开微信时，小程序并没有完全终止运行，而是进入了**后台**状态，小程序还可以运行一小段时间。
+  
+  当用户再次进入微信或再次打开小程序，小程序又会从后台进入**前台**。但如果用户很久没有再进入小程序，或者系统资源紧张，小程序可能被**销毁**，即完全终止运行。
+* **globalData是全局都能访问的一个数据。可以供所有页面使用**。
+* 注册完小程序之后会去注册页面。也就是你设置的第一个页面，就会去执行第一个`Page({})`
+* [页面生命周期](https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/page-life-cycle.html),主要从视图线和逻辑线之间的交互来看。主要是通过某个入口进去然后如何加载某个页面，如何渲染页面。直到销毁这个过程。
+    * 视图线**通知**逻辑线应该加载某个页面。
+    * 逻辑线**传递参数**给视图线，视图线获取数据然后渲染页面
+    * 最后的结束是页面卸载(onUnload)
+* 有什么用处
+    * 比如当用户切换页面的时候，当到达某个页面的时候就展示一个消息，这个就要放在onShow这个周期里面。
+    * 当一个页面做了一个很复杂的运算，代码执行会比较消耗内存。当这个页面不展示的时候，它就没有必要去计算，所以当在onHide的时候把某个执行给停掉。否则内存或者cpu使用过高，那么这个小程序就会自动终止退出。
+    * 如果需要一开始进入这个小程序时候获取数据，但是后面的切来切去的切换就不管，那就是要在onLoad里面。
+* data的修改必须要要通过[this.setData()](https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html)才可以修改。
+* 如果要想要获取这个data，就通过`this.data`来获取这个值。
+* [页面路由](https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/route.html)
+    * 这里打开新页面和重定向页面的区别就是原来的页面前者是隐藏(onHide)，后者是卸载(onUnload)。新页面都是加载和显示(onLoad, onShow)
+* [模块化](https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/module.html)
+    * 它的页面不是从网络上去请求，而是本地化的代码。有点相当于node.js的环境。所以它天生支持模块化。
+    * 每个文件都有一个独立的作用域。
+    * 可以将一些公共的代码抽离成为一个单独的 js 文件，作为一个模块。模块只有通过 module.exports 或者 exports 才能对外暴露接口。
+    * [common.js](https://www.w3cschool.cn/zobyhd/1ldb4ozt.html)的规范,跟node.js有点类似。通过`module.exports`这个对象上面增加一些方法。其他页面需要用的时候，就通过`require(path)`来引入。这个path路径必须是**相对路径**。[不支持绝对路径](https://developers.weixin.qq.com/miniprogram/dev/reference/api/require.html),因为这里面没有node_modules，所以所有的模块都是要找已经存在的。
 ## iconfont.wxss
 * 用到[@font-face](https://developer.mozilla.org/zh-CN/docs/Web/CSS/@font-face)
 * 在同时使用url()和local()功能时，为了用户已经安装的字体副本在需要使用时被使用，如果在用户本地没有找到字体副本就会去使用户下载的副本查找字体。
