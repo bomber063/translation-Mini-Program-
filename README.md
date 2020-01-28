@@ -3,7 +3,7 @@
 * WXS（WeiXin Script）是小程序的一套脚本语言，结合 WXML，可以构建出页面的结构。
 * 它跟MVVM框架比较像，它不想原生的JS那样去操作DOM。而是做了一个数据和视图的绑定。
 * 另外移动端是没有鼠标的click的，大部分都是tap。所以绑定事件用的是[bindtap](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F)等,示例可以看[这里的例子](https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html#Page.prototype.setData(Object%20data,%20Function%20callback))
-## 页面初始数据
+### 页面初始数据
 * [data](https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html#data).
 * wxml里面
 ```
@@ -33,7 +33,7 @@ Page({
 ```
 ### 显示消息提示框
 * [showToast](https://developers.weixin.qq.com/miniprogram/dev/api/ui/interaction/wx.showToast.html)显示消息提示框
-## app.wxss
+### app.wxss
 * 用到样式导入
 * 使用@import语句可以导入外联样式表，@import后跟需要导入的外联样式表的相对路径，用;表示语句结束。比如
 ```
@@ -84,6 +84,192 @@ Page({
     * 每个文件都有一个独立的作用域。
     * 可以将一些公共的代码抽离成为一个单独的 js 文件，作为一个模块。模块只有通过 module.exports 或者 exports 才能对外暴露接口。
     * [common.js](https://www.w3cschool.cn/zobyhd/1ldb4ozt.html)的规范,跟node.js有点类似。通过`module.exports`这个对象上面增加一些方法。其他页面需要用的时候，就通过`require(path)`来引入。这个path路径必须是**相对路径**。[不支持绝对路径](https://developers.weixin.qq.com/miniprogram/dev/reference/api/require.html),因为这里面没有node_modules，所以所有的模块都是要找已经存在的。
+#### 视图层
+* [数据绑定](https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/data.html)
+    * 简单绑定——数据绑定使用 Mustache 语法（双大括号）将变量包起来
+    ```
+    <view> {{ message }} </view>
+    ```
+    * 注意： 花括号和引号之间如果有空格，将最终被解析成为字符串
+    ```
+    <view wx:for="{{[1,2,3]}} ">
+      {{item}}
+    </view>
+    ```
+    * 等同于
+    ```
+    <view wx:for="{{[1,2,3] + ' '}}">
+      {{item}}
+    </view>
+    ```
+* [列表渲染](https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/list.html)
+    * 用`wx:for`,注意for等于后面的两个引号必须要有。默认数组的当前项的下标变量名默认为 index，数组当前项的变量名默认为 item
+    ```
+    <view wx:for="{{array}}">
+      {{index}}: {{item.message}}
+    </view>
+    ```
+    * 使用 `wx:for-item` 可以指定数组当前元素的变量名，
+      
+      使用 `wx:for-index` 可以指定数组当前下标的变量名：
+    ```
+    <view wx:for="{{array}}" wx:for-index="idx" wx:for-item="itemName">
+      {{idx}}: {{itemName.message}}
+    </view>
+    ```
+    * 还可以使用`block wx:for`
+    ```
+    <block wx:for="{{[1, 2, 3]}}">
+    <view>{{index}}:{{item}}</view>
+      <!-- <view> {{index}}: </view> -->
+      <!-- <view> {{item}} </view> -->
+    </block>
+    ```
+    * 就会显示
+    ```
+    0:1
+    1:2
+    2:3
+    ```
+    * 所以可以使用block wx:for，可以使用**多个view来实现列表循环,这里每个view会重复循环对应前面数组的次数**，外面写一个`block wx:for`。而这个block它本身是不会循环渲染。
+    * 渲染的时候最好绑定一个key，这样它的性能会更好一些。就是`wx:key`
+* [条件渲染](https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/conditional.html)
+    * 在框架中，使用 wx:if="" 来判断是否需要渲染该代码块
+    ```
+    <view wx:if="{{condition}}"> True </view>
+    ```
+    也可以用 wx:elif 和 wx:else 来添加一个 else 块：
+    ```
+        <view wx:if="{{length > 5}}"> 1 </view>
+        <view wx:elif="{{length > 2}}"> 2 </view>
+        <view wx:else> 3 </view>
+    ```
+    * wx:if vs hidden
+      * 因为 wx:if 之中的模板也可能包含数据绑定，所以当 wx:if 的条件值切换时，框架有一个局部渲染的过程，因为它会确保条件块在切换时销毁或重新渲染。
+      
+      * 同时 wx:if 也是惰性的，如果在初始渲染条件为 false，框架什么也不做，在条件第一次变成真的时候才开始局部渲染。
+      
+      * 相比之下，**hidden 就简单的多，组件始终会被渲染，只是简单的控制显示与隐藏**。
+      
+      * 一般来说，wx:if 有更高的切换消耗而 hidden 有更高的初始渲染消耗。因此，如果需要频繁切换的情景下，用 hidden 更好，如果在运行时条件不大可能改变则 wx:if 较好。
+* [模板](https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/template.html)
+    * WXML提供模板（template），可以在模板中定义代码片段，然后在不同的地方调用.
+    * 比如在wxml文件里面代码
+    ```
+    //定义模板
+    <template name="msgItem">
+      <view>
+        <text> {{index}}: {{msg}} </text>
+        <text> Time: {{time}} </text>
+      </view>
+    </template>
+    
+    //使用模板
+    <template is="msgItem" data="{{...item}}"/>
+    ```
+    * js文件里面的代码
+    ```
+    Page({
+      data: {
+        item: {
+          index: 0,
+          msg: 'this is a template',
+          time: '2016-09-15'
+        }
+      }
+    })
+    ```
+    * 其中这里用了三点，是ES6语法的结构，也就是结构后有对应的变量key和对应的值value组合。如果不用ES6语法就是下面的代码
+    ```
+        //使用模板,最原始的代码直接写过来
+        <template is="msgItem" data="{{index: 0,msg: 'this is a template',time: '2016-09-15'}}"/>
+        
+        //使用模板,结合数据绑定和匹配操作符的点来操作取值
+        <template is="msgItem" data="{{index:item.index,msg:item.msg,time:item.time}}"/>
+        //可以明显的看到key的名字和value的匹配操作符后面的名字一样，比如index:item.index
+    ```
+* [绑定事件](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/event.html)
+    * 事件的使用方式
+      在组件中绑定一个事件处理函数。
+      如bindtap，当用户点击该组件的时候会在该页面对应的Page中找到相应的事件处理函数。
+      ```
+      <view id="tapTest" data-hi="WeChat" bindtap="tapName"> Click me! </view>
+      ```
+      * 在相应的Page定义中写上相应的事件处理函数，参数是event,这个event就是这个对应的事件，事件里面有很多信息。
+      ```
+      Page({
+        tapName: function(event) {
+          console.log(event)
+        }
+      })
+      ```
+    * 需要传递一些数据还可以**定义在自定义属性上面**，比如
+    ```
+    <view id="tapTest" data-hi="WeChat" bindtap="tapName"> Click me! </view>
+    ```
+    * 在相应的Page定义中写上相应的事件处理函数，参数是event。
+    ```
+    Page({
+      tapName: function(event) {
+        console.log(event)
+      }
+    })
+    ```
+    * 可以看到log出来的信息可以找到对应的`WeChat`，只列出部分信息`currentTarget->dataset->hi->WeChat`。
+    ```
+    {
+    ...
+      "target": {
+        "id": "tapTest",
+        "dataset":  {
+          "hi":"WeChat"
+        }
+      },
+      "currentTarget":  {
+        "id": "tapTest",
+        "dataset": {
+          "hi":"WeChat"
+        }
+      },
+      ...
+    }
+    使用WXS
+    ```
+    * 冒泡事件和捕获事件
+* [引用](https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/import.html)
+    * WXML 提供两种文件引用方式import和include
+    * 在 item.wxml 中定义了一个叫item的template：
+      ```
+            <!-- item.wxml -->
+            <template name="item">
+              <text>{{text}}</text>
+            </template>
+      ```
+    * 在 index.wxml 中引用了 item.wxml，就可以使用item模板：
+    ```
+          <import src="item.wxml"/>
+          <template is="item" data="{{text: 'forbar'}}"/>
+    ```
+    * index.wxml的is后面的名字(比如item)要和前面item.wxml的name后面的名字(比如item)一样。src的目录是相对目录。
+    * include 可以将目标文件除了 <template/> <wxs/> 外的**整个代码引入，相当于是拷贝到 include 位置**，相当于把数据直接方放进去，而不用再去使用一次了。如
+    ```
+    <!-- index.wxml -->
+    <include src="header.wxml"/>
+    <view> body </view>
+    
+    <!-- header.wxml -->
+    <view> header </view>
+    ```
+    * src的路径是相对路径。
+#### WXS语法
+* [WXS 语法参考](https://developers.weixin.qq.com/miniprogram/dev/reference/wxs/)
+#### WXSS语法
+* [WXSS语法](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxss.html)
+* rpx（responsive pixel）: 可以根据屏幕宽度进行自适应。规定屏幕宽为750rpx。如在 iPhone6 上，屏幕宽度为375px，共有750个物理像素，则750rpx = 375px = 750物理像素，1rpx = 0.5px = 1物理像素。
+* 样式导入  
+  使用@import语句可以导入外联样式表，@import后跟需要导入的外联样式表的相对路径，用;表示语句结束。
+* 内联样式  
+  框架组件上支持使用 style、class 属性来控制组件的样式。
 ## iconfont.wxss
 * 用到[@font-face](https://developer.mozilla.org/zh-CN/docs/Web/CSS/@font-face)
 * 在同时使用url()和local()功能时，为了用户已经安装的字体副本在需要使用时被使用，如果在用户本地没有找到字体副本就会去使用户下载的副本查找字体。
