@@ -304,6 +304,7 @@ this.setData({'result': res.trans_result})
 *     this.globalData.curLang = wx.getStorageSync('curLang') ||     this.globalData.langList[0]
 
 ## api.js
+* 主要是处理一些接口。
 * 设置为我自己的百度翻译的appid和key。
 ```
 const appid = '20200110000374561'
@@ -349,6 +350,7 @@ bindconfirm='onConfirm' bindblur='onConfirm'
 * 用到[navigator页面链接](https://developers.weixin.qq.com/miniprogram/dev/component/navigator.html)的两个属性
     * hover-class属性,默认属性值是`navigator-hover`，指定点击时的样式类，当`hover-class="none"`时，**没有点击态效果**
     * url属性，当前小程序内的跳转链接。
+    * 它相当于HTML语言里面的a链接。可以连接到外部页面。但是navigator只能链接到小程序内部已经有的页面。
 * [textarea多行输入框](https://developers.weixin.qq.com/miniprogram/dev/component/textarea.html)。该组件是原生组件，使用时请注意相关限制。用到它的以下属性
     * placeholder——输入框为空时占位符。
     * placeholder-style——指定 placeholder 的样式，目前仅支持color,font-size和font-weight
@@ -361,6 +363,57 @@ bindconfirm='onConfirm' bindblur='onConfirm'
   <view class="text-result" wx:for="{{result}}" wx:key="index">
     <text selectable="true">{{item.dst}}</text>
   </view>
+```
+* [scroll-view](https://developers.weixin.qq.com/miniprogram/dev/component/scroll-view.html)  
+  **可滚动视图区域**。使用竖向滚动时，需要给scroll-view一个固定高度，通过 WXSS 设置 height。组件属性的长度单位默认为px，2.4.0起支持传入单位(rpx/px)。
+* 这里**老师说错的一个地方**，就是navigator的hover-class
+```
+    <navigator url="/pages/change/change" hover-class="navigator-hover">
+```
+* 不是app.wxss里面view-hover的样式。它是[navigator-hover](https://developers.weixin.qq.com/miniprogram/dev/component/navigator.html)默认样式
+```
+.view-hover {
+  background-color: #f3f3f3!important;
+}
+```
+* 我这里的icon用的是通过[iconfont](https://www.iconfont.cn/),我这里用的是**Font-class的引用**。但是小程序本身也自带了[icon](https://developers.weixin.qq.com/miniprogram/dev/component/icon.html),但是种类比较少。
+    * 当然你还可以自己制作图片当做icon。当时这个图片最好不要放到当前的目录下。因为对于小程序来说，整个代码包的体积越小越好，因为这些都需要下载到用户的手机上面的，如果体积很大，那么用户下载的数据就比较久，用户进入就比较慢，**所以对于这些资源能放外面的就放在外面**。
+    * 可以通过[img](https://developers.weixin.qq.com/miniprogram/dev/component/image.html)这个组件,其中有一个src的属性可以写入图片资料地址。
+    * 也可以在CSS的背景图片里面设置也可以。
+    * 但是用图片始终都不太方便。
+```
+    <text class="iconfont icon-down"></text>
+```
+* 这里注意一点就是小程序需要用到的地址是https协议，而不是http协议。
+* 所有组件都有公共属性：[公共属性](https://developers.weixin.qq.com/miniprogram/dev/framework/view/component.html#%E5%85%AC%E5%85%B1%E5%B1%9E%E6%80%A7)中有一个hidden属性，通过Boolean来控制组件是否显示。这里就使用了`hidden="{{hideClearIcon}}"`
+```
+    <text class="iconfont icon-close" hidden="{{hideClearIcon}}" bindtap='onTapClose'></text>
+```
+* 因为textarea的在CSS里面的层级比较高。就算你设置一个view覆盖到textarea上面，并且z-index设置的很大，而这个textarea的z-index设置的很小。**但是最终测试的时候发现这个×还是点不到，输入的时候这个输入框还是离用户最近，相当于你设置的z-index设置的很小，但是它的层级还是最高**。而我们这里使用的方法就让他们二者(×符号和textarea)脱离重叠。通过绝对定位和设置padding等方式就可以实现。
+```
+    <text class="iconfont icon-close" hidden="{{hideClearIcon}}" bindtap='onTapClose'></text>
+    <view class="textarea-wrap">
+      <textarea placeholder='请输入要翻译的文本' placeholder-style='color: #8995a1'  bindinput='onInput' bindconfirm='onConfirm' bindblur='onConfirm'  value="{{query}}"></textarea>
+    </view>
+```
+* textarea在CSS的部分代码
+```
+.input-area .text-area {
+  min-height: 80rpx;
+  padding: 40rpx;
+  background-color: #fff;
+}
+```
+* icon-close在CSS的部分代码
+```
+.input-area .icon-close {
+  position: absolute;
+  right: 10rpx;
+  top: 20rpx;
+  z-index: 100;
+  font-size: 35rpx;
+  color: #888;
+}
 ```
 ## index.wxss
 * 这里主要注意用的尺寸单位是[rpx](https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxss.html)。
@@ -380,11 +433,27 @@ bindconfirm='onConfirm' bindblur='onConfirm'
   color: #888;
 }
 ```
+## index.js
+* bindinput里面，当键盘输入时，触发 input 事件，event.detail = {value, cursor, keyCode}，keyCode 为键值，获取到输入e.detail.value存在query里面,这里面不能选择DOM，因为小程序里面这里没有选择DOM的API。
+```
+  onInput: function(e) {
+    // console.log(e.detail)
+    //把输入的信息用query作为key保存。
+    this.setData({'query': e.detail.value})
+    //如果长度大于0，就显示icon
+    if(this.data.query.length > 0) {
+      this.setData({ 'hideClearIcon': false })
+    }else{
+      this.setData({ 'hideClearIcon': true })
+    }
+    // console.log('focus')
+  },
+```
 ## change.json
 * [页面配置](https://developers.weixin.qq.com/miniprogram/dev/framework/config.html#%E9%A1%B5%E9%9D%A2%E9%85%8D%E7%BD%AE)
 
 ## change.wxml
-* 这里面用到一个公用属性[data-*](https://developers.weixin.qq.com/miniprogram/dev/framework/view/component.html#%E5%85%AC%E5%85%B1%E5%B1%9E%E6%80%A7),他会存在你绑定的事件，比如这个事件是e，那么对应的信息就会在currentTarget->dataset里面
+* 这里面用到一个公共属性[data-*](https://developers.weixin.qq.com/miniprogram/dev/framework/view/component.html#%E5%85%AC%E5%85%B1%E5%B1%9E%E6%80%A7),他会存在你绑定的事件，比如这个事件是e，那么对应的信息就会在currentTarget->dataset里面
 ```
   "currentTarget":  {
     "id": "tapTest",
