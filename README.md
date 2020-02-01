@@ -301,8 +301,10 @@ this.setData({'result': res.trans_result})
 ```
 * [unshift](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift)方法将一个或多个元素添加到数组的开头，并返回该数组的新长度(该方法修改原有数组)。
 ## app.js
-*     this.globalData.curLang = wx.getStorageSync('curLang') ||     this.globalData.langList[0]
-
+* [getStorageSync](https://developers.weixin.qq.com/miniprogram/dev/api/storage/wx.getStorageSync.html)，从本地缓存中异步获取指定 key 的内容。在浏览器里面只能存入字符串，**在小程序里面的缓存可以存对象**。
+```
+this.globalData.curLang = wx.getStorageSync('curLang') ||     this.globalData.langList[0]
+```
 ## api.js
 * 主要是处理一些接口。
 * 设置为我自己的百度翻译的appid和key。
@@ -462,7 +464,7 @@ bindconfirm='onConfirm' bindblur='onConfirm'
     }
   },
 ```
-* 比如我这里用到了`data-chs="{{language.chs}}" data-lang="{{language.lang}}" data-index="{{index}}`这些自定义的公用属性，并且有一个事件是`bindtap=onTapItem`
+* 比如我这里用到了`data-chs="{{language.chs}}" data-lang="{{language.lang}}" data-index="{{index}}`这些**自定义的公用属性**，并且有一个事件是`bindtap=onTapItem`
 ```
   <view class="item" data-chs="{{language.chs}}" data-lang="{{language.lang}}" data-index="{{index}}" wx:for="{{langList}}" wx:key="index" wx:for-item="language" bindtap='onTapItem'  hover-class="view-hover">
 ```
@@ -516,9 +518,32 @@ lang: "zh"
   </view>
 </view>
 ```
+* 这里的左边的i是列表渲染的，所以每一列都是变化的，按照0123...，而右边的值列表的每一行都是一样的。
+```
+      <text class="iconfont icon-duihao" wx:if="{{index===curLang.index}}"></text>
+
+<!--        刚开始的时候i都是索引012345...，然后index都是就是最开始的英文，也就是0，当点击之后，就会把点击的索引选中，比如点击的索引是4，那么就选中索引4，那么就选中索引4，那么当前的语言就是4，所以说i是列表渲染的每一行都是变化的，而curLang.i或者curLang.index每一行都是一样的。-->
+```
 ## change.js
 * 用到[wx.switchTab](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.switchTab.html),跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面,用到下面的属性
     * url——需要跳转的 tabBar 页面的路径 (代码包路径)（需在 app.json 的 tabBar 字段定义的页面），路径后不能带参数。
+    * 区别：
+    1. [wx.switchTab——切换Tab](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.switchTab.html)——**跳转到 tabBar 页面**，并关闭其他所有非 tabBar 页面
+    2. [wx.reLaunch——重启](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.reLaunch.html)——关闭所有页面，打开到应用内的某个页面
+    3. [wx.redirectTo——重定向到](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.redirectTo.html)——**关闭当前页面**，跳转到应用内的某个页面。但是**不允许跳转到 tabbar 页面**。
+    4. [wx.navigateTo——导航到](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.navigateTo.html)——**保留当前页面**，跳转到应用内的某个页面。但是**不能跳到 tabbar 页面**。使用 wx.navigateBack 可以返回到原页面。小程序中页面栈最多十层
+    5. [wx.navigateBack——导航返回](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.navigateBack.html)——关闭当前页面，返回上一页面或多级页面。可通过 getCurrentPages 获取当前的页面栈，决定需要返回几层
+    6. **备注：tabbar页面在这个项目里面就是index和history页面，而change页面是非tabbar页面。**。
+* 表格
+
+| API                  |跳转页面              | 关闭的页面            |
+| --------             | :-----:             | :----:              |
+| wx.switchTab——切换Tab |tabBar页面           |关闭其他所有非tabBar页面|
+| wx.reLaunch——重启     |应用内的某个页面       |关闭所有页面           |
+| wx.redirectTo——重定向到|不允许跳转到tabbar页面 |关闭当前页面           |
+| wx.navigateTo——导航到  |不能跳到tabbar页面    |不关闭,保留当前页面     |
+| wx.navigateBack——导航返回|返回上一页面或多级页面|关闭当前页面           |
+* **备注：tabbar页面在这个项目里面就是index和history页面，而change页面是非tabbar页面。**。
 ## history.js
 * 用到[wx.reLaunch](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.reLaunch.html),关闭所有页面，打开到应用内的某个页面,用到的属性
     * url——需要跳转的应用内页面路径 (代码包路径)，路径后可以带参数。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'
