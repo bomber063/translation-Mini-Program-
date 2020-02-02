@@ -545,8 +545,9 @@ lang: "zh"
 | wx.navigateBack——导航返回|返回上一页面或多级页面|关闭当前页面           |
 * **备注：tabbar页面在这个项目里面就是index和history页面，而change页面是非tabbar页面。**。
 ## history.js
-* 用到[wx.reLaunch](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.reLaunch.html),关闭所有页面，打开到应用内的某个页面,用到的属性
-    * url——需要跳转的应用内页面路径 (代码包路径)，路径后可以带参数。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'
+* 页面与页面的传递数据的方式有两种，一种是globalData,另一种是getStorageSync。
+* 因为[wx.switchTab](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.switchTab.html)的url的**路径不能带参数**，用到[wx.reLaunch](https://developers.weixin.qq.com/miniprogram/dev/api/route/wx.reLaunch.html),关闭所有页面，打开到应用内的某个页面,用到的属性
+    * url——需要跳转的应用内页面路径 (代码包路径)，**路径后可以带参数**。参数与路径之间使用?分隔，参数键与参数值用=相连，不同参数用&分隔；如 'path?key=value&key2=value2'
 * 这里的代码如下
 ```
   onTapItem: function(e) {
@@ -555,7 +556,7 @@ lang: "zh"
     })
   },
 ```
-* 当点击的死后会触发reLaunch，然后带上参数`query=${e.currentTarget.dataset.query}`，这个参数就是history.wxml里面的`data-query="{{item.query}}`也就是index.js里面翻译前的信息query
+* 当点击的时候会触发reLaunch，然后带上参数`query=${e.currentTarget.dataset.query}`，这个参数就是history.wxml里面的`data-query="{{item.query}}`也就是index.js里面翻译前的信息query
 ```
       history.unshift({ query: this.data.query, result: res.trans_result[0].dst})
 ```
@@ -596,6 +597,11 @@ lang: "zh"
   },
 ```
 * 我为什么想要传这个result过去，是因为历史页面跳转到index页面后的翻译显示的结果是默认英文的翻译，如果之前的翻译是选择别的语言翻译(比如之前是韩语)的话就会出现语言不同啦（因为显示的是英语，英语和韩语翻译的结果不同）。**如果这里只能传query，那么就不能判断之前用的是英语翻译还是别的语言的翻译，所以这个问题我暂时还解决不了。**
+## history.wxml
+* 用到组件[scroll-view](https://developers.weixin.qq.com/miniprogram/dev/component/scroll-view.html)的scroll-y属性，允许纵向滚动
+```
+<scroll-view scroll-y class="container">
+```
 ### 传值的问题解决了
 * 这里之前通过wx.reLaunch传值到onShow里面，所以获取不到。我把它放到onLoad里面就可以获取到了.
 ```
